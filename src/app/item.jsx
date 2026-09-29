@@ -18,6 +18,7 @@ import Modal from '@/components/modal';
 export default function ItemScreen() {
   const router = useRouter();
   const [itemName, setItemName] = useState('');
+  const [category, setCategory] = useState('');
   const [price, setPrice] = useState('');
   const [isModal, setIsModal] = useState(false);
   const playTap = useSoundEffect(Sounds.tap);
@@ -36,10 +37,15 @@ export default function ItemScreen() {
     const parsedPrice = parseFloat(price);
     if (!price.trim() || Number.isNaN(parsedPrice) || parsedPrice <= 0) return;
 
+    const trimmedCategory = category.trim();
     const id = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
-    setItems((prev) => [...prev, { id, name: trimmedName, price: parsedPrice }]);
+    setItems((prev) => [
+      ...prev,
+      { id, name: trimmedName, price: parsedPrice, category: trimmedCategory },
+    ]);
     setItemName('');
+    setCategory('');
     setPrice('');
     playTap();
   };
@@ -70,6 +76,17 @@ export default function ItemScreen() {
 
         <ScrollView style={{backgroundColor: "#FFF"}}>
           <View style={styles.content}>
+            <View style={styles.inputRow}>
+              <TextInput
+                style={styles.inputCategory}
+                value={category}
+                onChangeText={setCategory}
+                placeholder="Category (e.g. Jollibee)"
+                placeholderTextColor="#9A9EA8"
+                returnKeyType="next"
+              />
+            </View>
+
             <View style={styles.inputRow}>
               <TextInput
                 style={styles.inputName}
@@ -105,7 +122,12 @@ export default function ItemScreen() {
                   <View style={styles.itemNumberCont}>
                     <Text style={styles.itemNumber}>{index + 1}</Text>
                   </View>
-                  <Text style={styles.itemName}>{item.name}</Text>
+                  <View style={{ flex: 1 }}>
+                    {!!item.category && (
+                      <Text style={styles.categoryTag}>{item.category.toUpperCase()}</Text>
+                    )}
+                    <Text style={styles.itemName}>{item.name}</Text>
+                  </View>
                   <Text style={styles.priceText}>₱{item.price.toFixed(2)}</Text>
                   <Pressable
                     onPress={() => removeItem(item.id)}
@@ -186,6 +208,18 @@ const styles = StyleSheet.create({
     width: '100%',
     gap: 10,
   },
+  inputCategory: {
+    flex: 1,
+    minWidth: 0,
+    borderWidth: 2,
+    borderColor: PokemonColors.border,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: '#2A2A2A',
+    backgroundColor: '#FFFFFF',
+  },
   inputName: {
     flex: 1,
     minWidth: 0,
@@ -260,8 +294,14 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '800'
   },
+  categoryTag: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: PokemonColors.mutedText ?? '#9A9EA8',
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
   itemName: {
-    flex: 1,
     fontSize: 15,
     fontWeight: '700',
     color: '#2A2A2A',

@@ -2,10 +2,22 @@ import BackPet from '@/components/ui/back-pet';
 import { PokemonColors } from '@/constants/pokemon-theme';
 import { Sounds } from '@/constants/sounds';
 import { useSoundEffect } from '@/hooks/use-sound-effect';
-import { clearSplitHistory, getSplitHistory } from '@/utils/split-history';
+import { decodeReceipt } from '@/utils/share-code';
+import { addSplitToHistory, clearSplitHistory, getSplitHistory } from '@/utils/split-history';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Animated,
+  Easing,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HistoryDetailScreen() {
@@ -14,6 +26,67 @@ export default function HistoryDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [confirmClear, setConfirmClear] = useState(false);
   const playTap = useSoundEffect(Sounds.tap);
+
+  // ---- Import bottom sheet ----
+  const [showImport, setShowImport] = useState(false);
+  const [sheetMounted, setSheetMounted] = useState(false);
+  const [importValue, setImportValue] = useState('');
+  const [importError, setImportError] = useState(false);
+  const [importBusy, setImportBusy] = useState(false);
+
+  const slide = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (showImport) {
+      setSheetMounted(true);
+      Animated.timing(slide, {
+        toValue: 1,
+        duration: 280,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start();
+    } else if (sheetMounted) {
+      Animated.timing(slide, {
+        toValue: 0,
+        duration: 220,
+        easing: Easing.in(Easing.cubic),
+        useNativeDriver: true,
+      }).start(() => setSheetMounted(false));
+    }
+  }, [showImport]);
+
+  const sheetTranslate = slide.interpolate({ inputRange: [0, 1], outputRange: [500, 0] });
+  const backdropOpacity = slide.interpolate({ inputRange: [0, 1], outputRange: [0, 0.5] });
+
+  const closeImport = () => {
+    setShowImport(false);
+    setImportValue('');
+    setImportError(false);
+  };
+
+  const handleImportCode = async () => {
+    if (importBusy) return;
+
+    const decoded = decodeReceipt(importValue);
+    if (!decoded) {
+      setImportError(true);
+      return;
+    }
+
+    setImportBusy(true);
+    setImportError(false);
+    try {
+      await addSplitToHistory(decoded);
+      const all = await getSplitHistory();
+      setRecords(all);
+      closeImport();
+      playTap();
+    } catch {
+      setImportError(true);
+    } finally {
+      setImportBusy(false);
+    }
+  };
 
   // Reload every time this screen is focused, so a newly saved split
   // shows up without needing a manual refresh.
@@ -137,6 +210,19 @@ export default function HistoryDetailScreen() {
             })}
           </ScrollView>
         )}
+
+        {/* Floating import button */}
+        <Pressable
+          onPress={() => {
+            setShowImport(true);
+            playTap();
+          }}
+          style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
+          accessibilityLabel="Import a receipt"
+          accessibilityRole="button"
+        >
+          <Text style={styles.fabIcon}>⇩</Text>
+        </Pressable>
       </View>
 
       {/* Two-button clear-history confirmation — the shared Modal only
@@ -168,6 +254,72 @@ export default function HistoryDetailScreen() {
           </View>
         </View>
       )}
+
+      {/* Import bottom sheet */}
+      <Modal
+        visible={sheetMounted}
+        transparent
+        animationType="none"
+        onRequestClose={closeImport}
+        statusBarTranslucent
+      >
+        <View style={styles.modalRoot}>
+          <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
+            <Pressable style={StyleSheet.absoluteFill} onPress={closeImport} />
+          </Animated.View>
+
+          <Animated.View style={[styles.sheet, { transform: [{ translateY: sheetTranslate }] }]}>
+            <View style={styles.sheetHandle} />
+
+            <Text style={styles.sheetTitle}>Import a receipt</Text>
+            <Text style={styles.sheetSubtitle}>
+              Paste the code someone shared with you from Bill Splitter.
+            </Text>
+
+            {importError && (
+              <Text style={styles.importErrorText}>
+                That code didn't look right. Check it and try again.
+              </Text>
+            )}
+
+            <TextInput
+              style={styles.importInput}
+              value={importValue}
+              onChangeText={(text) => {
+                setImportValue(text);
+                if (importError) setImportError(false);
+              }}
+              placeholder="Paste code here…"
+              placeholderTextColor="#9A9EA8"
+              multiline
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+
+            <View style={styles.sheetButtons}>
+              <Pressable
+                onPress={closeImport}
+                style={({ pressed }) => [styles.cancelButton, pressed && styles.pressed]}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </Pressable>
+              <Pressable
+                onPress={handleImportCode}
+                disabled={importBusy || !importValue.trim()}
+                style={({ pressed }) => [
+                  styles.importButton,
+                  pressed && styles.pressed,
+                  (importBusy || !importValue.trim()) && styles.disabled,
+                ]}
+              >
+                <Text style={styles.importButtonText}>
+                  {importBusy ? 'Importing…' : 'Import'}
+                </Text>
+              </Pressable>
+            </View>
+          </Animated.View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -248,6 +400,7 @@ const styles = StyleSheet.create({
   },
   contentInner: {
     padding: 20,
+    paddingBottom: 100, // keeps the last card clear of the floating button
     gap: 12,
   },
   recordCard: {
@@ -298,6 +451,36 @@ const styles = StyleSheet.create({
   emptySubtext: {
     fontSize: 13,
     color: PokemonColors.mutedText,
+  },
+
+  // ---- Floating import button ----
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: PokemonColors.yellow,
+    borderWidth: 2.5,
+    borderColor: PokemonColors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    // Android + iOS shadow so it visibly floats above the list
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 5,
+    elevation: 6,
+  },
+  fabPressed: {
+    transform: [{ translateY: 2 }],
+    opacity: 0.9,
+  },
+  fabIcon: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: PokemonColors.bodyText,
   },
 
   confirmOverlay: {
@@ -363,5 +546,84 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.8,
+  },
+
+  // ---- Import bottom sheet ----
+  modalRoot: { flex: 1, justifyContent: 'flex-end' },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#000',
+  },
+  sheet: {
+    backgroundColor: PokemonColors.cream,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    borderWidth: 2,
+    borderBottomWidth: 0,
+    borderColor: PokemonColors.border,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 32,
+    gap: 12,
+    width: '100%',
+    maxWidth: 520,
+    alignSelf: 'center',
+  },
+  sheetHandle: {
+    alignSelf: 'center',
+    width: 44,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: PokemonColors.border,
+    opacity: 0.4,
+    marginBottom: 4,
+  },
+  sheetTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: PokemonColors.bodyText,
+  },
+  sheetSubtitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: PokemonColors.mutedText,
+  },
+  importErrorText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#C1524C',
+  },
+  importInput: {
+    minHeight: 90,
+    borderWidth: 2,
+    borderColor: PokemonColors.border,
+    borderRadius: 12,
+    padding: 14,
+    fontSize: 14,
+    color: '#2A2A2A',
+    backgroundColor: '#FFFFFF',
+    textAlignVertical: 'top',
+  },
+  sheetButtons: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 4,
+  },
+  importButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: PokemonColors.border,
+    backgroundColor: PokemonColors.yellow,
+    alignItems: 'center',
+  },
+  importButtonText: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: PokemonColors.bodyText,
+  },
+  disabled: {
+    opacity: 0.5,
   },
 });

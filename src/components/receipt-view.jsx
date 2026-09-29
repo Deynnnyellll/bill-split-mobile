@@ -1,5 +1,4 @@
 import { PokemonColors } from '@/constants/pokemon-theme';
-import LZString from 'lz-string';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
@@ -13,6 +12,9 @@ import {
   Text,
   View,
 } from 'react-native';
+
+import { encodeReceipt } from '@/utils/share-code';
+
 import QRCode from 'react-native-qrcode-svg';
 
 // url for redirect
@@ -120,13 +122,10 @@ export default function ReceiptView({ items, members, total, assignments, itemFu
     ? members.filter((m) => !funders.some((f) => f.id === m.id))
     : members;
 
-  // ---- Share payloads ----
   const sharePayload = useMemo(
-    () => LZString.compressToEncodedURIComponent(
-      JSON.stringify({ items, members, total, assignments, itemFunders })
-    ),
-    [items, members, total, assignments, itemFunders]
-  );
+  () => encodeReceipt({ items, members, total, assignments, itemFunders }),
+  [items, members, total, assignments, itemFunders]
+);
 
   const shareUrl = useMemo(() => {
     const base = Platform.OS === 'android' ? `${NATIVE_SCHEME}://` : `${WEB_APP_URL}/`;
@@ -194,7 +193,7 @@ export default function ReceiptView({ items, members, total, assignments, itemFu
     try {
       if (Platform.OS === 'web') {
         if (navigator.share) {
-          await navigator.share({ title: 'Bill Splitter code', text: sharePayload });
+          await navigator.share({ text: sharePayload });
         } else {
           await copyCode(sharePayload);
         }
@@ -219,7 +218,12 @@ export default function ReceiptView({ items, members, total, assignments, itemFu
           {items.map((item) => (
             <View key={item.id}>
               <View style={styles.itemRow}>
-                <Text style={styles.itemName}>{item.name}</Text>
+                <View style={{ flex: 1 }}>
+                  {!!item.category && (
+                    <Text style={styles.categoryTag}>{item.category.toUpperCase()}</Text>
+                  )}
+                  <Text style={styles.itemName}>{item.name}</Text>
+                </View>
                 <Text style={styles.itemPrice}>₱{item.price}</Text>
               </View>
               <View style={styles.dashedBorder} />
@@ -378,15 +382,23 @@ const styles = StyleSheet.create({
     padding: 4,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     borderColor: PokemonColors.bodyText,
   },
   itemName: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '800',
     color: PokemonColors.bodyText,
   },
+  categoryTag: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: PokemonColors.mutedText ?? '#9A9EA8',
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
   itemPrice: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '800',
     color: '#C1524C',
   },

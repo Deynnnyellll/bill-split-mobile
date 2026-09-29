@@ -98,7 +98,12 @@ export default function AssignScreen() {
             return (
               <View key={item.id} style={styles.itemCard}>
                 <View style={styles.itemHeaderRow}>
-                  <Text style={styles.itemName}>{item.name}</Text>
+                  <View style={{ flex: 1 }}>
+                    {!!item.category && (
+                      <Text style={styles.categoryTag}>{item.category.toUpperCase()}</Text>
+                    )}
+                    <Text style={styles.itemName}>{item.name}</Text>
+                  </View>
                   <Text style={styles.itemPrice}>₱{item.price.toFixed(0)}</Text>
                 </View>
 
@@ -246,6 +251,13 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '800',
     color: PokemonColors.bodyText,
+  },
+  categoryTag: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: PokemonColors.mutedText ?? '#9A9EA8',
+    letterSpacing: 0.5,
+    marginBottom: 2,
   },
   itemPrice: {
     fontSize: 16,
