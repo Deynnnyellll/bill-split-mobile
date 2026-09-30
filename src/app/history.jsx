@@ -3,7 +3,7 @@ import { PokemonColors } from '@/constants/pokemon-theme';
 import { Sounds } from '@/constants/sounds';
 import { useSoundEffect } from '@/hooks/use-sound-effect';
 import { decodeReceipt } from '@/utils/share-code';
-import { addSplitToHistory, clearSplitHistory, getSplitHistory } from '@/utils/split-history';
+import { clearSplitHistory, getSplitHistory, saveSplitToHistory } from '@/utils/split-history';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -68,6 +68,9 @@ export default function HistoryDetailScreen() {
     if (importBusy) return;
 
     const decoded = decodeReceipt(importValue);
+    console.log("Decoded receipt:", decoded)
+
+    // this will handle if there is no decoded receipt
     if (!decoded) {
       setImportError(true);
       return;
@@ -75,14 +78,16 @@ export default function HistoryDetailScreen() {
 
     setImportBusy(true);
     setImportError(false);
+
     try {
-      await addSplitToHistory(decoded);
+      await saveSplitToHistory(decoded);
       const all = await getSplitHistory();
+      console.log("history after decoding", all);
       setRecords(all);
       closeImport();
       playTap();
     } catch {
-      setImportError(true);
+      // setImportError(true);
     } finally {
       setImportBusy(false);
     }

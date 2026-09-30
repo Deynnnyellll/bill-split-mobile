@@ -2,7 +2,7 @@ import { AppContext } from '@/context/context';
 import useTyper from '@/hooks/useTyper';
 import { useRouter } from 'expo-router';
 import { useContext, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ScreenFooter from '@/components/screen-footer';
@@ -20,6 +20,7 @@ export default function AssignScreen() {
   const [isReceiptModal, setIsReceiptModal] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [busy, setBusy] = useState(null); // 'download'
 
   const {
     items,
@@ -57,6 +58,64 @@ export default function AssignScreen() {
     }
   };
 
+  // Cross-platform toast-ish message
+  function notify(title, message) {
+    if (Platform.OS === 'web') {
+      window.alert(message ? `${title}\n${message}` : title);
+    } else {
+      Alert.alert(title, message);
+    }
+  }
+
+  const handleDownload = async () => {
+    if (busy) return;
+    setBusy('download');
+    const fileName = `receipt-${Date.now()}.png`;
+
+    try {
+      if (Platform.OS === 'web') {
+        const html2canvas = (await import('html2canvas')).default;
+        const node = document.getElementById('receipt-capture');
+        const canvas = await html2canvas(node, { backgroundColor: null, scale: 2 });
+        const blob = await new Promise((res) => canvas.toBlob(res, 'image/png'));
+        const file = new File([blob], fileName, { type: 'image/png' });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: 'Bill receipt' });
+        } else {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+        return;
+      }
+
+      const MediaLibrary = await import('expo-media-library');
+      const { captureRef } = await import('react-native-view-shot');
+
+      const { status } = await MediaLibrary.requestPermissionsAsync(true);
+      if (status !== 'granted') {
+        notify('Permission needed', 'Allow photo access to save the receipt.');
+        return;
+      }
+      const uri = await captureRef(receiptRef, { format: 'png', quality: 1, result: 'tmpfile' });
+      await MediaLibrary.saveToLibraryAsync(uri);
+      notify('Receipt saved', 'You can find it in your Photos.');
+    } catch (err) {
+      if (err?.name !== 'AbortError') {
+        console.error(err);
+        notify('Could not save receipt', 'Try again in a moment.');
+      }
+    } finally {
+      setBusy(null);
+    }
+  };
+
   const closeReceiptModal = () => {
     setIsReceiptModal(false);
     setTimeout(() => {
@@ -72,7 +131,7 @@ export default function AssignScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView nativeID='receipt-capture' style={styles.safeArea}>
       <View style={styles.card}>
         <ScreenHeader
           eyebrow="STEP 5 / 5"
@@ -97,6 +156,7 @@ export default function AssignScreen() {
             total={total}
             assignments={assignments}
             itemFunders={itemFunders}
+            handleDownload={handleDownload}
           />
         </ScrollView>
 

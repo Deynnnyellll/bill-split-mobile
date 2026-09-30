@@ -36,13 +36,24 @@ export default function ItemScreen() {
   const toggleFunder = (id) => {
     if (!isFunder) return;
 
+    const isSingleFunder = items.length === 1;
     const turningOff = members.find((member) => member.id === id)?.isFunder === true;
 
     setMembers((prev) =>
       prev.map((member) =>
-        member.id === id ? { ...member, isFunder: !member.isFunder } : member
+        {
+          if(member.id === id) return { ...member, isFunder: !member.isFunder }
+
+          return isSingleFunder ? { ...member, isFunder: false} : member;
+  
+        }
       )
     );
+
+    if(isSingleFunder) {
+      setItemFunders({});
+      return;
+    }
 
     if (turningOff) {
       setItemFunders((prev) => {
@@ -219,10 +230,9 @@ export default function ItemScreen() {
                 </View>
                 <Text style={styles.metaText}>
                   { 
-                    isFunder ?
-                    `PICK THE FUNDER${selectedFunders.length > 1 ? 'S' : ''}` 
-                    : 
-                    "ITEMS WILL SPLIT EVENLY"
+                    isFunder ? (items.length === 1 ?
+                    'PICK THE FUNDER (ONLY ONE ITEM)' :
+                    `PICK THE FUNDER${selectedFunders.length > 1 ? 'S' : ''}`) : "ITEMS WILL SPLIT EVENLY"
                   }
                 </Text>
 
