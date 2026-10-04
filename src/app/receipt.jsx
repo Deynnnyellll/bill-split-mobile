@@ -35,9 +35,6 @@ export default function AssignScreen() {
     const result = await saveSplitToHistory({ items, members, total, assignments, itemFunders });
     setSaving(false);
 
-    // saveSplitToHistory returns the saved record on success, or null if the
-    // write failed (e.g. AsyncStorage not linked) — only claim success when
-    // it actually returned something.
     if (result) {
       setIsReceiptModal(true);
       console.log('[receipt] save result:', result);
