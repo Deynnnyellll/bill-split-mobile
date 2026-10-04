@@ -1,4 +1,6 @@
 import { PokemonColors } from '@/constants/pokemon-theme';
+import { Sounds } from '@/constants/sounds';
+import { useSoundEffect } from '@/hooks/use-sound-effect';
 import { encodeReceipt } from '@/utils/share-code';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Animated, Easing, Modal, Platform, Pressable, Share, StyleSheet, Text, View } from 'react-native';
@@ -23,6 +25,7 @@ export default function ReceiptView({ items, members, total, assignments, itemFu
   const [assignedItems, setAssignedItems] = useState();
   const [hasAssignedItems, setHasAssignedItems] = useState(false);
   const receiptRef = useRef(null);
+  const playTap = useSoundEffect(Sounds.tap);
 
   // ---- Bottom sheet animation ----
   const slide = useRef(new Animated.Value(0)).current; // 0 = hidden, 1 = shown
@@ -127,9 +130,8 @@ export default function ReceiptView({ items, members, total, assignments, itemFu
   }, [sharePayload]);
 
   const handleAssignedItems = (id) => {
-    setAssignedItems(members.filter((item) => item.id === id))
-
-    console.log("Assignments: ", assignedItems);
+    setAssignedItems(members.filter((item) => item.id === id));
+    playTap();
   }
 
   const copyCode = async (code) => {
@@ -243,10 +245,10 @@ export default function ReceiptView({ items, members, total, assignments, itemFu
           })}
 
           {funders.map((f) => (
-            <View key={f.id} style={styles.totalOwedRow}>
+            <Pressable onPress={() => handleAssignedItems(f.id)} key={f.id} style={styles.totalOwedRow}>
               <Text style={styles.totalOwedLabel}>Total owed to {f.name}</Text>
               <Text style={styles.totalOwedAmount}>₱{totalOwedByFunder[f.id] ?? 0}</Text>
-            </View>
+            </Pressable>
           ))}
         </View>
         
