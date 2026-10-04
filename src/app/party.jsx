@@ -25,7 +25,9 @@ export default function PartyScreen() {
   const [name, setName] = useState('');
   const { members, setMembers } = useContext(AppContext);
   const [isModal, setIsModal] = useState(false);
+  const [isDuplicateModal, setIsDuplicateModal] = useState(false);
   const playTap = useSoundEffect(Sounds.tap);
+  const playConfirm = useSoundEffect(Sounds.confirm);
 
   const DIALOG_TEXT = "Who's in the party? Everyone gets a type colour.";
   const TYPE_SPEED_MS = 30;
@@ -35,6 +37,15 @@ export default function PartyScreen() {
   const addMember = () => {
     const trimmed = name.trim();
     if (!trimmed) return;
+
+    const isDuplicate = members.some(member => member.name === trimmed);
+
+    // guard to prevent duplicate items
+    if(isDuplicate) {
+      setIsDuplicateModal(true);
+      playConfirm();
+      return;
+    }
 
     const type = MEMBER_TYPES[members.length % MEMBER_TYPES.length];
     setMembers((prev) => [...prev, { id: `${Date.now()}-${prev.length}`, name: trimmed, type }]);
@@ -123,7 +134,8 @@ export default function PartyScreen() {
           onBack={() => router.push("./")}
         />
 
-        <Modal text={"Please enter more than one members"} isModal={isModal} metal={false} closeModal={() => setIsModal(prev => !prev)} />
+        <Modal text={"Please register two or more Trainers to continue!"} isModal={isModal} metal={false} closeModal={() => setIsModal(prev => !prev)} />
+          <Modal text={"Name already exists in the dex. Please rename to avoid a split conflict!"} isModal={isDuplicateModal} metal={false} closeModal={() => setIsDuplicateModal(prev => !prev)} />
       </View>
     </SafeAreaView>
   );

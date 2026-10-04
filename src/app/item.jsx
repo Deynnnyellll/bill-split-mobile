@@ -21,7 +21,9 @@ export default function ItemScreen() {
   const [category, setCategory] = useState('');
   const [price, setPrice] = useState('');
   const [isModal, setIsModal] = useState(false);
+  const [isDuplicateModal, setIsDuplicateModal] = useState(false);
   const playTap = useSoundEffect(Sounds.tap);
+  const playConfirm = useSoundEffect(Sounds.confirm);
 
   const { members, items, setItems, total, setTotal } = useContext(AppContext);
 
@@ -34,11 +36,25 @@ export default function ItemScreen() {
     const trimmedName = itemName.trim();
     if (!trimmedName) return;
 
+
     const parsedPrice = parseFloat(price);
     if (!price.trim() || Number.isNaN(parsedPrice) || parsedPrice <= 0) return;
 
     const trimmedCategory = category.trim();
     const id = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+
+    const isDuplicate = items.some(item => 
+      item.name === trimmedName && 
+      item.category === trimmedCategory &&
+      item.price === parsedPrice
+    );
+
+    // guard to prevent duplicate items
+    if(isDuplicate) {
+      setIsDuplicateModal(true);
+      playConfirm();
+      return;
+    }
 
     setItems((prev) => [
       ...prev,
@@ -158,7 +174,8 @@ export default function ItemScreen() {
         />
       </View>
 
-      <Modal text={"Please enter items"} isModal={isModal} metal={false} closeModal={() => setIsModal(prev => !prev)} />
+      <Modal text={"Your Bag is empty! Please enter some items."} isModal={isModal} metal={false} closeModal={() => setIsModal(prev => !prev)} />
+      <Modal text={"Item already recorded in the dex!"} isModal={isDuplicateModal} metal={false} closeModal={() => setIsDuplicateModal(prev => !prev)} />
     </SafeAreaView>
   );
 }

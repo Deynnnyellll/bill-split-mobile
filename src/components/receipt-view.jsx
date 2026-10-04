@@ -21,6 +21,7 @@ export default function ReceiptView({ items, members, total, assignments, itemFu
   const [isShare, setIsShare] = useState(false);
   const [busy, setBusy] = useState(null); // 'code' | null
   const [assignedItems, setAssignedItems] = useState();
+  const [hasAssignedItems, setHasAssignedItems] = useState(false);
   const receiptRef = useRef(null);
 
   // ---- Bottom sheet animation ----
@@ -45,6 +46,15 @@ export default function ReceiptView({ items, members, total, assignments, itemFu
       }).start(() => setSheetMounted(false));
     }
   }, [isShare]);
+
+  // check if members have assignedItems
+  useEffect(() => {
+    const allMembersHasAssignedItems = members.every(member => "assignedItems" in member);
+
+    if(allMembersHasAssignedItems) {
+      setHasAssignedItems(true);
+    }
+  })
 
   const sheetTranslate = slide.interpolate({ inputRange: [0, 1], outputRange: [500, 0] });
   const backdropOpacity = slide.interpolate({ inputRange: [0, 1], outputRange: [0, 0.5] });
@@ -190,6 +200,8 @@ export default function ReceiptView({ items, members, total, assignments, itemFu
                 ? `OWES ${funders[0].name.toUpperCase()}`
                 : 'WHO OWES WHOM'}
           </Text>
+
+          { hasAssignedItems && <Text style={styles.instruction}>Choose a Trainer's name to view their detailed split</Text>}
 
           {summaryMembers.map((member) => {
             const memberDebts = debts[member.id] ?? {};
@@ -550,9 +562,17 @@ const styles = StyleSheet.create({
     color: PokemonColors.mutedText ?? '#9A9EA8',
   },
   detailedSplit: {
-    marginTop: 4,
     backgroundColor: PokemonColors.cream,
+    marginTop: 4,
     padding: 10,
-    borderRadius: 10
+    borderRadius: 10,
+    borderColor: PokemonColors.border,
+    borderWidth: 2
+  },
+  instruction: {
+    color: "#FFF",
+    opacity: 0.7,
+    marginTop: -12,
+    fontSize: 12
   }
 });
