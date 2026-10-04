@@ -22,19 +22,7 @@ export default function AssignScreen() {
   const [saving, setSaving] = useState(false);
   const [busy, setBusy] = useState(null); // 'download'
 
-  const {
-    items,
-    members,
-    total,
-    assignments,
-    itemFunders,
-    setItems,
-    setMembers,
-    setAssignments,
-    setItemFunders,
-    setTotal,
-    setSplitCompleted,
-  } = useContext(AppContext);
+  const { items, members, total, assignments, itemFunders, setItems, setMembers, setAssignments, setItemFunders, setTotal, setSplitCompleted } = useContext(AppContext);
 
   const DIALOG_TEXT = 'Everyone share is set. You can tap share to send it around.';
   const TYPE_SPEED_MS = 30;

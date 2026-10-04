@@ -120,7 +120,7 @@ export default function PartyScreen() {
             saveDraft({ members, items: [], total: 0, assignments: {}, itemFunders: {}, step: 1, route: '/item' });
             router.push('/item');
           }}
-          onBack={() => router.back()}
+          onBack={() => router.push("./")}
         />
 
         <Modal text={"Please enter more than one members"} isModal={isModal} metal={false} closeModal={() => setIsModal(prev => !prev)} />

@@ -49,13 +49,18 @@ export default function AssignScreen() {
     setMembers((prev) =>
       prev.map((member) => {
         let total = 0;
+        const assignedItems = []
         items.forEach((item) => {
           const sharers = assignments[item.id] ?? [];
           if (sharers.includes(member.id)) {
-            total += item.price / sharers.length;
+            const share = item.price / sharers.length
+            total += share;
+            assignedItems.push({
+              id: item.id, name: item.name, price: share
+            })
           }
         });
-        return { ...member, totalOwed: total };
+        return { ...member, totalOwed: total, assignedItems: assignedItems };
       })
     );
   }, [items, assignments]);

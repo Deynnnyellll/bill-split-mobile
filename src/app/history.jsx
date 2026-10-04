@@ -3,7 +3,7 @@ import { PokemonColors } from '@/constants/pokemon-theme';
 import { Sounds } from '@/constants/sounds';
 import { useSoundEffect } from '@/hooks/use-sound-effect';
 import { decodeReceipt } from '@/utils/share-code';
-import { clearSplitHistory, getSplitHistory, saveSplitToHistory } from '@/utils/split-history';
+import { clearSplitHistory, deleteSplitFromHistory, getSplitHistory, saveSplitToHistory } from '@/utils/split-history';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -25,6 +25,7 @@ export default function HistoryDetailScreen() {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [confirmClear, setConfirmClear] = useState(false);
+  const [itemToClear, setItemToClear] = useState();
   const playTap = useSoundEffect(Sounds.tap);
 
   // ---- Import bottom sheet ----
@@ -118,6 +119,18 @@ export default function HistoryDetailScreen() {
     playTap();
   };
 
+  const handleClearHistory = async () => {
+    if(!itemToClear) return;
+    await deleteSplitFromHistory(itemToClear)
+    setConfirmClear(false)
+
+    getSplitHistory().then((all) => {
+        setRecords(all);
+    });
+
+    setItemToClear();
+  }
+
   const formatDate = (iso) => {
     const d = new Date(iso);
     return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
@@ -198,6 +211,13 @@ export default function HistoryDetailScreen() {
                   }}
                   style={({ pressed }) => [styles.recordCard, pressed && styles.pressed]}
                 >
+                  <Pressable style={styles.closeButton} onPress={() => {
+                    setConfirmClear(true);
+                    setItemToClear(item.id);
+                    playTap();
+                  }}>
+                    <Text style={styles.closeText}>X</Text>
+                  </Pressable>
                   <View style={styles.recordHeader}>
                     <Text style={styles.recordDate}>{formatDate(item.date)}</Text>
                     <Text style={styles.recordTotal}>₱{item.total}</Text>
@@ -235,9 +255,9 @@ export default function HistoryDetailScreen() {
       {confirmClear && (
         <View style={styles.confirmOverlay}>
           <View style={styles.confirmCard}>
-            <Text style={styles.confirmTitle}>Clear all history?</Text>
+            <Text style={styles.confirmTitle}>{itemToClear ? "Clear this history?" : "Clear all history?"}</Text>
             <Text style={styles.confirmBody}>
-              This removes every saved split and can't be undone.
+              {`This removes ${itemToClear ? "the split" : "every saved split"} and can't be undone.`}
             </Text>
             <View style={styles.confirmButtons}>
               <Pressable
@@ -250,7 +270,7 @@ export default function HistoryDetailScreen() {
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </Pressable>
               <Pressable
-                onPress={handleClear}
+                onPress={!itemToClear ? handleClear : handleClearHistory}
                 style={({ pressed }) => [styles.confirmButton, pressed && styles.pressed]}
               >
                 <Text style={styles.confirmButtonText}>Clear</Text>
@@ -412,9 +432,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: PokemonColors.border,
     borderRadius: 16,
-    padding: 16,
+    padding: 20,
+    paddingTop: 32,
     backgroundColor: PokemonColors.contentBackground,
     gap: 6,
+    position: "relative",
+    overflow: "hidden"
   },
   recordHeader: {
     flexDirection: 'row',
@@ -631,4 +654,24 @@ const styles = StyleSheet.create({
   disabled: {
     opacity: 0.5,
   },
+  closeButton: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    backgroundColor: PokemonColors.bodyText,
+    padding: 2,
+    borderRadius: 10,
+    borderTopLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    height: 25,
+    width: 25,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  closeText: {
+    fontSize: 12,
+    fontWeight: 700,
+    color: "#FFF"
+  }
 });

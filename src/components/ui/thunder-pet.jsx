@@ -1,19 +1,15 @@
-//
-// Requires react-native-svg:
-//   npx expo install react-native-svg
-
 import Svg, {
-    Circle,
-    Defs,
-    Ellipse,
-    FeDropShadow,
-    Filter,
-    G,
-    LinearGradient,
-    Path,
-    Polygon,
-    RadialGradient,
-    Stop
+  Circle,
+  Defs,
+  Ellipse,
+  FeDropShadow,
+  Filter,
+  G,
+  LinearGradient,
+  Path,
+  Polygon,
+  RadialGradient,
+  Stop
 } from 'react-native-svg';
 
 export default function ThunderPetHugging({ width = 120 }) {

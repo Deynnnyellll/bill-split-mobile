@@ -1,19 +1,7 @@
 import { PokemonColors } from '@/constants/pokemon-theme';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Alert,
-  Animated,
-  Easing,
-  Modal,
-  Platform,
-  Pressable,
-  Share,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-
 import { encodeReceipt } from '@/utils/share-code';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, Animated, Easing, Modal, Platform, Pressable, Share, StyleSheet, Text, View } from 'react-native';
 
 import QRCode from 'react-native-qrcode-svg';
 
@@ -32,6 +20,7 @@ export default function ReceiptView({ items, members, total, assignments, itemFu
 
   const [isShare, setIsShare] = useState(false);
   const [busy, setBusy] = useState(null); // 'code' | null
+  const [assignedItems, setAssignedItems] = useState();
   const receiptRef = useRef(null);
 
   // ---- Bottom sheet animation ----
@@ -127,6 +116,12 @@ export default function ReceiptView({ items, members, total, assignments, itemFu
     return sharePayload;
   }, [sharePayload]);
 
+  const handleAssignedItems = (id) => {
+    setAssignedItems(members.filter((item) => item.id === id))
+
+    console.log("Assignments: ", assignedItems);
+  }
+
   const copyCode = async (code) => {
     const Clipboard = await import('expo-clipboard');
     await Clipboard.setStringAsync(code);
@@ -203,7 +198,7 @@ export default function ReceiptView({ items, members, total, assignments, itemFu
               : (member.totalOwed ?? 0);
             const fraction = total > 0 ? owed / total : 0;
             return (
-              <View key={member.id} style={styles.summaryRow}>
+              <Pressable onPress={() => handleAssignedItems(member.id)} key={member.id} style={styles.summaryRow}>
                 <View style={styles.summaryTextRow}>
                   <Text style={styles.summaryName}>{member.name}</Text>
                   <Text style={styles.summaryAmount}>₱{owed}</Text>
@@ -231,7 +226,7 @@ export default function ReceiptView({ items, members, total, assignments, itemFu
                     ]}
                   />
                 </View>
-              </View>
+              </Pressable>
             );
           })}
 
@@ -242,6 +237,27 @@ export default function ReceiptView({ items, members, total, assignments, itemFu
             </View>
           ))}
         </View>
+        
+        { assignedItems && 
+          <View style={[styles.itemList, styles.detailedSplit]}>
+            <Text style={[styles.metaText, { marginBottom: 10 }]}>
+              {assignedItems[0].name ? `${assignedItems[0].name.toUpperCase()}'S` : "TRAINER'S"} SPLIT
+            </Text>
+            {
+              assignedItems[0].assignedItems.map((item) => (
+                <View key={item.id}>
+                  <View style={styles.itemRow}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.itemName}>{item.name}</Text>
+                    </View>
+                    <Text style={styles.itemPrice}>₱{item.price}</Text>
+                  </View>
+                  <View style={styles.dashedBorder} />
+                </View>
+              ))
+            }
+          </View>
+        }
       </View>
 
       {/* Actions */}
@@ -533,4 +549,10 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: PokemonColors.mutedText ?? '#9A9EA8',
   },
+  detailedSplit: {
+    marginTop: 4,
+    backgroundColor: PokemonColors.cream,
+    padding: 10,
+    borderRadius: 10
+  }
 });

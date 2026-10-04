@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, { FadeIn, FadeOut, SlideInRight } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut, SlideInRight, SlideOutRight } from 'react-native-reanimated';
 
 import { PokemonColors, PokemonTypography } from '@/constants/pokemon-theme';
 import { getDraft } from '@/utils/split-draft';
@@ -11,9 +11,10 @@ import FlameCreatureTilt from '@/components/ui/flame-type-pet-tilt';
 const POSE_INTERVAL_MS = 2000;
 const CROSSFADE_MS = 250;
 
-export default function DraftReminderPet({ onResume }) {
+export default function DraftReminderPet({ onResume}) {
   const [draft, setDraft] = useState(null);
   const [isTilting, setIsTilting] = useState(false);
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -39,32 +40,43 @@ export default function DraftReminderPet({ onResume }) {
     return () => clearInterval(id);
   }, [draft]);
 
+  const closeReminder = () => setVisible(false);
+
   if (!draft) return null;
 
   return (
-    <Animated.View entering={SlideInRight.duration(450)} style={styles.wrapper} pointerEvents="box-none">
-      <View style={styles.bubble}>
-        <Text style={styles.bubbleText}>Hey Trainer, you have an unfinished bill split!</Text>
-        <Pressable
-          onPress={() => onResume?.(draft)}
-          style={({ pressed }) => [styles.resumeButton, pressed && styles.pressed]}>
-          <Text style={styles.resumeButtonText}>Resume</Text>
-        </Pressable>
-        <View style={styles.bubbleArrow} />
-      </View>
+    <>
+      {
+      visible &&
+      <Animated.View entering={SlideInRight.duration(450)} exiting={SlideOutRight.duration(300)} style={styles.wrapper} pointerEvents="box-none">
+        <View style={styles.bubble}>
+          <Text style={styles.bubbleText}>Hey Trainer, you have an unfinished bill split!</Text>
+          <Pressable
+            onPress={() => onResume?.(draft)}
+            style={({ pressed }) => [styles.resumeButton, pressed && styles.pressed]}>
+            <Text style={styles.resumeButtonText}>Resume</Text>
+          </Pressable>
 
-      <View style={styles.petSlot}>
-        {isTilting ? (
-          <Animated.View key="tilt" entering={FadeIn.duration(CROSSFADE_MS)} exiting={FadeOut.duration(CROSSFADE_MS)}>
-            <FlameCreatureTilt width={120} height={120} />
-          </Animated.View>
-        ) : (
-          <Animated.View key="idle" entering={FadeIn.duration(CROSSFADE_MS)} exiting={FadeOut.duration(CROSSFADE_MS)}>
-            <FlameCreature width={120} height={120} />
-          </Animated.View>
-        )}
-      </View>
-    </Animated.View>
+          <Pressable style={styles.closeButton} onPress={closeReminder}>
+            <Text style={styles.closeText}>X</Text>
+          </Pressable>
+          <View style={styles.bubbleArrow} />
+        </View>
+
+        <View style={styles.petSlot}>
+          {isTilting ? (
+            <Animated.View key="tilt" entering={FadeIn.duration(CROSSFADE_MS)} exiting={FadeOut.duration(CROSSFADE_MS)}>
+              <FlameCreatureTilt width={120} height={120} />
+            </Animated.View>
+          ) : (
+            <Animated.View key="idle" entering={FadeIn.duration(CROSSFADE_MS)} exiting={FadeOut.duration(CROSSFADE_MS)}>
+              <FlameCreature width={120} height={120} />
+            </Animated.View>
+          )}
+        </View>
+      </Animated.View>
+      }
+    </>
   );
 }
 
@@ -135,4 +147,24 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.8,
   },
+  closeButton: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    backgroundColor: PokemonColors.bodyText,
+    padding: 2,
+    borderRadius: 10,
+    borderTopLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    height: 20,
+    width: 20,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  closeText: {
+    fontSize: 10,
+    fontWeight: 700,
+    color: "#FFF"
+  }
 });
