@@ -1,4 +1,4 @@
-import { PokemonColors } from '@/constants/pokemon-theme';
+import { PokemonColors } from '@/constants/app-theme';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 // Typical phone breakpoint — most phones (portrait) sit under this width;

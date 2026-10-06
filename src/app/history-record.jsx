@@ -1,4 +1,4 @@
-import { PokemonColors } from '@/constants/pokemon-theme';
+import { PokemonColors } from '@/constants/app-theme';
 import { Sounds } from '@/constants/sounds';
 import { getSplitHistory } from '@/utils/split-history';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';

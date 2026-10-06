@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { PokemonColors, PokemonTypography } from '@/constants/pokemon-theme';
+import { PokemonColors, PokemonTypography } from '@/constants/app-theme';
 
 export default function ScreenHeader({ eyebrow, eyebrowMuted, title, currentStep }) {
   const showSteps = Boolean(currentStep);

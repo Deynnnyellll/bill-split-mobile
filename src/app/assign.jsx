@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ScreenFooter from '@/components/screen-footer';
 import ScreenHeader from '@/components/screen-header';
-import { PokemonColors } from '@/constants/pokemon-theme';
+import { PokemonColors } from '@/constants/app-theme';
 import { Sounds } from '@/constants/sounds';
 import { useSoundEffect } from '@/hooks/use-sound-effect';
 import { saveDraft } from '@/utils/split-draft';

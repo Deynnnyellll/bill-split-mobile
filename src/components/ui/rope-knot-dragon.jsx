@@ -9,7 +9,7 @@
 // Requires react-native-svg:
 //   npx expo install react-native-svg
 
-import { PokemonColors } from '@/constants/pokemon-theme';
+import { PokemonColors } from '@/constants/app-theme';
 import Svg, { Circle, Ellipse, Path } from 'react-native-svg';
 
 const ROPE = '#B8895A';

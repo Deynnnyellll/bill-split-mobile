@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ScreenFooter from '@/components/screen-footer';
 import ScreenHeader from '@/components/screen-header';
-import { PokemonColors } from '@/constants/pokemon-theme';
+import { PokemonColors } from '@/constants/app-theme';
 
 import Modal from '@/components/modal';
 import ReceiptView from '@/components/receipt-view';

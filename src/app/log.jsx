@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ScreenFooter from '@/components/screen-footer';
 import ScreenHeader from '@/components/screen-header';
-import { PokemonColors, PokemonTypography } from '@/constants/pokemon-theme';
+import { PokemonColors, PokemonTypography } from '@/constants/app-theme';
 
 export default function LogScreen() {
   const router = useRouter();

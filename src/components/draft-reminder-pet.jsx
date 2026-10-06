@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeOut, SlideInRight, SlideOutRight } from 'react-native-reanimated';
 
-import { PokemonColors, PokemonTypography } from '@/constants/pokemon-theme';
+import { PokemonColors, PokemonTypography } from '@/constants/app-theme';
 import { getDraft } from '@/utils/split-draft';
 
 import FlameCreature from '@/components/ui/flame-type-pet';

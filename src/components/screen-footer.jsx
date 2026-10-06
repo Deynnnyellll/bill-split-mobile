@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { PokemonColors, PokemonTypography } from '@/constants/pokemon-theme';
+import { PokemonColors, PokemonTypography } from '@/constants/app-theme';
 import { Sounds } from '@/constants/sounds';
 import { useSoundEffect } from '@/hooks/use-sound-effect';
 

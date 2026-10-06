@@ -1,5 +1,5 @@
 import BackPet from '@/components/ui/back-pet';
-import { PokemonColors } from '@/constants/pokemon-theme';
+import { PokemonColors } from '@/constants/app-theme';
 import { Sounds } from '@/constants/sounds';
 import { useSoundEffect } from '@/hooks/use-sound-effect';
 import { decodeReceipt } from '@/utils/share-code';
@@ -246,7 +246,7 @@ export default function HistoryDetailScreen() {
           accessibilityLabel="Import a receipt"
           accessibilityRole="button"
         >
-          <Text style={styles.fabIcon}>⇩</Text>
+          <Text style={styles.fabIcon}>⬇</Text>
         </Pressable>
       </View>
 

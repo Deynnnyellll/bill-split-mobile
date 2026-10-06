@@ -7,7 +7,7 @@ import DraftReminderPet from '@/components/draft-reminder-pet';
 import Modal from '@/components/modal';
 import ScreenFooter from '@/components/screen-footer';
 import ScreenHeader from '@/components/screen-header';
-import { PokemonColors, TYPE_BADGES } from '@/constants/pokemon-theme';
+import { PokemonColors, TYPE_BADGES } from '@/constants/app-theme';
 import { Sounds } from '@/constants/sounds';
 import { AppContext } from '@/context/context';
 import { useSoundEffect } from '@/hooks/use-sound-effect';
