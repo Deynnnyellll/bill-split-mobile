@@ -1,6 +1,6 @@
-# Bill Splitter (Pokémon-themed) 👋
+# Bill Splitter 👋
 
-A bill-splitting app styled like a Pokémon-game encounter: a typewriter-effect dialog box, badges, and a step-by-step "party" flow guide you through logging a bill and splitting it between trainers (people). Built with [Expo](https://expo.dev) and Expo Router.
+A bill-splitting app with a playful encounter-like theme: a typewriter-effect dialog box, badges, and a step-by-step "party" flow guide you through logging a bill and splitting it between trainers (people). Built with [Expo](https://expo.dev) and Expo Router.
 
 ## Get started
 
