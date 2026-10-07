@@ -112,14 +112,16 @@ export default function HomeScreen() {
         </View>
 
         <ScreenFooter
-          showBack={false}
+          showBack={true}
           nextLabel="Start the split"
+          backLabel='Pets'
           onNext={() => router.push('/party')}
+          onBack={() => router.push("pets")}
         />
       </View>
 
       <Modal
-        text="Split complete! Your receipt was saved to the PokéBox."
+        text="Split complete! Your receipt was saved to the History."
         isModal={isCompleteModal}
         thunder={true}
         closeModal={() => setIsCompleteModal(false)}

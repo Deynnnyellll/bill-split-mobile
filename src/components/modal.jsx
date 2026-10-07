@@ -1,20 +1,20 @@
-import { useEffect, useRef, useState } from 'react';
+import { AppContext } from '@/context/context';
+import { useContext, useEffect, useRef, useState } from 'react';
 import {
-    Animated,
-    Easing,
-    Pressable,
-    Modal as RNModal,
-    StyleSheet,
-    Text,
-    View,
+  Animated,
+  Easing,
+  Image,
+  Pressable,
+  Modal as RNModal,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 
+import Panda from "@/assets/images/pets/panda.png";
 import { PokemonColors } from '@/constants/app-theme';
 import { Sounds } from '@/constants/sounds';
 import { useSoundEffect } from '@/hooks/use-sound-effect';
-import MetalHuggingRope from './ui/metal-hugging';
-import RopeKnotDragon from './ui/rope-knot-dragon';
-import ThunderPetHugging from './ui/thunder-pet';
 
 export default function Modal(props) {
   const playTap = useSoundEffect(Sounds.tap);
@@ -22,6 +22,7 @@ export default function Modal(props) {
   const fallAnim = useRef(new Animated.Value(-260)).current; // vertical drop-in
   const swingAnim = useRef(new Animated.Value(0)).current;   // pendulum tilt, in degrees
   const [groupHeight, setGroupHeight] = useState(0);
+  const { pet } = useContext(AppContext);
 
   useEffect(() => {
     if (!props.isModal) return;
@@ -86,13 +87,7 @@ export default function Modal(props) {
               ]}
             >
               <View style={styles.illustrationWrap} pointerEvents="none">
-                {props.thunder ? (
-                  <ThunderPetHugging width={120} />
-                ) : props.metal ? (
-                  <MetalHuggingRope />
-                ) : (
-                  <RopeKnotDragon width={120} />
-                )}
+                <Image source={pet ? pet : Panda} style={{width: 120, height: 120}} />
               </View>
 
               <View style={styles.tag}>
@@ -132,7 +127,7 @@ const styles = StyleSheet.create({
   },
   illustrationWrap: {
     alignItems: 'center',
-    marginBottom: -46, // overlaps the tag's top edge so the rope reads as threading in
+    marginBottom: -36, // overlaps the tag's top edge so the rope reads as threading in
   },
   tag: {
     backgroundColor: PokemonColors.cream,

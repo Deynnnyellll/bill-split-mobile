@@ -510,7 +510,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: PokemonColors.bodyText,
   },
-
   confirmOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.4)',
@@ -575,7 +574,6 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.8,
   },
-
   // ---- Import bottom sheet ----
   modalRoot: { flex: 1, justifyContent: 'flex-end' },
   backdrop: {

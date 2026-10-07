@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, { FadeIn, FadeOut, SlideInRight, SlideOutRight } from 'react-native-reanimated';
+import { AppContext } from '@/context/context';
+import { useContext, useEffect, useState } from 'react';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated, { SlideInRight, SlideOutRight } from 'react-native-reanimated';
 
 import { PokemonColors, PokemonTypography } from '@/constants/app-theme';
 import { getDraft } from '@/utils/split-draft';
 
-import FlameCreature from '@/components/ui/flame-type-pet';
-import FlameCreatureTilt from '@/components/ui/flame-type-pet-tilt';
+import Panda from "@/assets/images/pets/panda.png";
 
 const POSE_INTERVAL_MS = 2000;
 const CROSSFADE_MS = 250;
@@ -15,6 +15,7 @@ export default function DraftReminderPet({ onResume}) {
   const [draft, setDraft] = useState(null);
   const [isTilting, setIsTilting] = useState(false);
   const [visible, setVisible] = useState(true);
+  const { pet } = useContext(AppContext);
 
   useEffect(() => {
     let cancelled = false;
@@ -64,7 +65,7 @@ export default function DraftReminderPet({ onResume}) {
         </View>
 
         <View style={styles.petSlot}>
-          {isTilting ? (
+          {/* {isTilting ? (
             <Animated.View key="tilt" entering={FadeIn.duration(CROSSFADE_MS)} exiting={FadeOut.duration(CROSSFADE_MS)}>
               <FlameCreatureTilt width={120} height={120} />
             </Animated.View>
@@ -72,7 +73,9 @@ export default function DraftReminderPet({ onResume}) {
             <Animated.View key="idle" entering={FadeIn.duration(CROSSFADE_MS)} exiting={FadeOut.duration(CROSSFADE_MS)}>
               <FlameCreature width={120} height={120} />
             </Animated.View>
-          )}
+          )} */}
+
+            <Image style={styles.pet} source={pet ? pet : Panda} />
         </View>
       </Animated.View>
       }
@@ -86,6 +89,11 @@ const styles = StyleSheet.create({
     height: 120,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  pet: {
+    width: 130,
+    height: 130,
+    transform: "scaleX(-1)"
   },
   wrapper: {
     position: 'absolute',
