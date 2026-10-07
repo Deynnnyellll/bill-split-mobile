@@ -48,8 +48,6 @@ export default function HistoryRecordScreen() {
 
     setMembers(record.members);
     setItems(record.items);
-    setAssignments(record.assignments);
-    console.log(record.items);
 
     handleClearItem();
     router.push("party");

@@ -9,11 +9,9 @@ import { getDraft } from '@/utils/split-draft';
 import Panda from "@/assets/images/pets/panda.png";
 
 const POSE_INTERVAL_MS = 2000;
-const CROSSFADE_MS = 250;
 
 export default function DraftReminderPet({ onResume}) {
   const [draft, setDraft] = useState(null);
-  const [isTilting, setIsTilting] = useState(false);
   const [visible, setVisible] = useState(true);
   const { pet } = useContext(AppContext);
 
@@ -33,10 +31,6 @@ export default function DraftReminderPet({ onResume}) {
   // (i.e. a draft) is showing.
   useEffect(() => {
     if (!draft) return;
-
-    const id = setInterval(() => {
-      setIsTilting((prev) => !prev);
-    }, POSE_INTERVAL_MS);
 
     return () => clearInterval(id);
   }, [draft]);
@@ -65,16 +59,6 @@ export default function DraftReminderPet({ onResume}) {
         </View>
 
         <View style={styles.petSlot}>
-          {/* {isTilting ? (
-            <Animated.View key="tilt" entering={FadeIn.duration(CROSSFADE_MS)} exiting={FadeOut.duration(CROSSFADE_MS)}>
-              <FlameCreatureTilt width={120} height={120} />
-            </Animated.View>
-          ) : (
-            <Animated.View key="idle" entering={FadeIn.duration(CROSSFADE_MS)} exiting={FadeOut.duration(CROSSFADE_MS)}>
-              <FlameCreature width={120} height={120} />
-            </Animated.View>
-          )} */}
-
             <Image style={styles.pet} source={pet ? pet : Panda} />
         </View>
       </Animated.View>
