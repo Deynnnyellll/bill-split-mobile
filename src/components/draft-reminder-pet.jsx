@@ -4,13 +4,11 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { SlideInRight, SlideOutRight } from 'react-native-reanimated';
 
 import { PokemonColors, PokemonTypography } from '@/constants/app-theme';
-import { getDraft } from '@/utils/split-draft';
+import { clearDraft, getDraft } from '@/utils/split-draft';
 
 import Panda from "@/assets/images/pets/panda.png";
 
-const POSE_INTERVAL_MS = 2000;
-
-export default function DraftReminderPet({ onResume}) {
+export default function DraftReminderPet({ onResume }) {
   const [draft, setDraft] = useState(null);
   const [visible, setVisible] = useState(true);
   const { pet } = useContext(AppContext);
@@ -27,15 +25,10 @@ export default function DraftReminderPet({ onResume}) {
     };
   }, []);
 
-  // Loop the idle <-> tilt crossfade every 2s for as long as the reminder
-  // (i.e. a draft) is showing.
-  useEffect(() => {
-    if (!draft) return;
-
-    return () => clearInterval(id);
-  }, [draft]);
-
-  const closeReminder = () => setVisible(false);
+  const closeReminder = () => {
+    setVisible(false);
+    clearDraft().then( () => console.log("Draft cleared"));
+  }
 
   if (!draft) return null;
 
