@@ -1,6 +1,6 @@
-# Bill Splitter (Pokémon-themed) 👋
+# Bill Splitter 👋
 
-A bill-splitting app styled like a Pokémon-game encounter: a typewriter-effect dialog box, badges, and a step-by-step "party" flow guide you through logging a bill and splitting it between trainers (people). Built with [Expo](https://expo.dev) and Expo Router.
+A bill-splitting app with a playful encounter-like theme: a typewriter-effect dialog box, badges, and a step-by-step "party" flow guide you through logging a bill and splitting it between trainers (people). Built with [Expo](https://expo.dev) and Expo Router.
 
 ## Get started
 
@@ -24,15 +24,6 @@ In the output, you'll find options to open the app in a
 - Web browser (`npm run web`)
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
-## App flow
-
-- **Home** (`src/app/index.jsx`) — encounter/splash screen introducing the Bill Splitter.
-- **Party** (`src/app/party.jsx`) — add the people ("party members") splitting the bill; each member is assigned a Pokémon-type color badge.
-- **Log** (`src/app/log.jsx`) — log the items/amounts on the bill.
-- **Explore** (`src/app/explore.tsx`) — secondary tab.
-
-Shared UI pieces live in `src/components/` (`screen-header.jsx`, `screen-footer.jsx`), the Pokémon color/typography palette is in `src/constants/pokemon-theme.ts`, and the dialog-box typing effect is powered by the `useTyper` hook (`src/hooks/useTyper.jsx`).
-
 ## Project structure
 
 This project uses [file-based routing](https://docs.expo.dev/router/introduction) rooted at `src/app`. Per this project's conventions:
@@ -40,8 +31,6 @@ This project uses [file-based routing](https://docs.expo.dev/router/introduction
 - New route files are authored as `.jsx` (not `.tsx`); existing `.tsx` files don't need to be converted.
 - Platform-specific behavior uses Expo/Metro's extension resolution (e.g. `app-tabs.tsx` vs `app-tabs.web.tsx`).
 - Path alias `@/*` maps to `src/*`, and `@/assets/*` maps to `assets/`.
-
-See `AGENTS.md` and `CLAUDE.md` for more detailed conventions used when developing this project with AI coding agents.
 
 ## Other setup steps
 
